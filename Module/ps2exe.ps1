@@ -2472,6 +2472,11 @@ $(if (!$noError) { if (!$noConsole) {@"
 			set { this.exitCode = value; }
 		}
 
+		$(if ($noConsole) {@"
+		[System.Runtime.InteropServices.DllImport("user32.dll")]
+		private static extern bool SetProcessDPIAware();
+"@ })
+
 		$(if ($STA){"[STAThread]"})$(if ($MTA){"[MTAThread]"})
 		private static int Main(string[] args)
 		{
@@ -2479,6 +2484,12 @@ $(if (!$noConsole -and $UNICODEEncoding) {@"
 			System.Console.OutputEncoding = new System.Text.UnicodeEncoding();
 "@ })
 			$culture
+			$(if ($noConsole) {@"
+			if (Environment.OSVersion.Version.Major >= 6)
+				SetProcessDPIAware();
+
+			Application.SetCompatibleTextRenderingDefault(false);
+"@ })
 
 			$(if (!$noVisualStyles -and $noConsole) { "Application.EnableVisualStyles();" })
 			MainApp me = new MainApp();
